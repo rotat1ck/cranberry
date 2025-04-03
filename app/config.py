@@ -8,7 +8,7 @@ db = SQLAlchemy() # <= создание экземпляра класса SQLAlc
 
 def initConfig(app):
     current_dir = path.dirname(path.abspath(__file__)) # нахождение текущего каталога, для создания базы
-    db_path = path.join(current_dir, '..', 'grape.db') # определение пути базы
+    db_path = path.join(current_dir, '..', 'meow.db') # определение пути базы
     # в данном случае мы выходим на уровень выше из текущего каталога и создаем базу рядом с main.py
     
     # параметры app.config это настройки приложения которые можно использовать из любой его точки
