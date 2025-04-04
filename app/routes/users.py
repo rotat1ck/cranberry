@@ -6,7 +6,7 @@ from app.models import db, User, Ingridient
 # db: объект базы данных
 # User: модель пользователя
 from app.utils.jwtdec import token_required, create_token
-from app.utils.coctails import getCoctailPrice
+from app.utils.coctails import getCoctailPrice, getCoctailContent, getCoctailDegree
 # token_required: декоратор ограничивающий конечную точку только для авторизированных пользователей
 # create_token: функция генерации токена
 import json
@@ -82,9 +82,14 @@ def createCoctail(user):
     if not content:
         return jsonify({"error": "Content parse error"}), 400
     
+    contentResult = getCoctailContent(content)
+    if isinstance(contentResult, tuple) and contentResult[0].is_json:
+        return contentResult
 
-    result = getCoctailPrice(content)
-    if isinstance(result, tuple) and result[0].is_json:
-        return result
-    print(result)
+    priceResult = getCoctailPrice(content)
+    if isinstance(priceResult, tuple) and priceResult[0].is_json:
+        return priceResult
+    
+    print(contentResult)
+    print(priceResult)
     return jsonify({"message": f"Coctail {name} created"}), 200

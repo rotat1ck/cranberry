@@ -6,7 +6,6 @@ def getCoctailPrice(content):
     for ingridient in content:
         try:
             ingr = Ingridient.query.filter_by(name=ingridient['name']).first()
-            print(ingr.name + " " + ingridient['volume'])
             if not ingr:
                 return jsonify({"error": f"Ingridient {ingridient['name']} not found"}), 400
             if not ingridient['volume']:
@@ -21,3 +20,20 @@ def getCoctailPrice(content):
 
 def getCoctailDegree(content):
     pass
+
+def getCoctailContent(content):
+    contentResult = ""
+    for ingridient in content:
+        try:
+            ingr = Ingridient.query.filter_by(name=ingridient['name']).first()
+            if not ingr:
+                return jsonify({"error": f"Ingridient {ingridient['name']} not found"}), 404
+            if not ingridient['volume']:
+                return jsonify({"error": f"Ingridient {ingridient['name']} volume is required"}),
+        
+            contentResult += ingr.name + " " + ingridient['volume'] + " "
+        except Exception as e:
+            # удалить позже
+            return jsonify({"error": f"Error parsing ingridients: {e}"}), 500
+        
+    return contentResult
