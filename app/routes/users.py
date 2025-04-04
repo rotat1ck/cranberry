@@ -55,3 +55,4 @@ def usersRegister():
     db.session.commit() # сохраняем изменения в базе данных
 
     return jsonify({"token": create_token(username)}), 200 # возвращаем токен пользователю
+
