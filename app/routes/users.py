@@ -2,12 +2,13 @@ from flask import Blueprint, jsonify, request
 # Blueprint: создание префикса для конечной точки
 # jsonify: преобразование данных в JSON
 # request: доступ к данным запроса
-from app.models import db, User
+from app.models import db, User, Ingridient
 # db: объект базы данных
 # User: модель пользователя
 from app.utils.jwtdec import token_required, create_token
 # token_required: декоратор ограничивающий конечную точку только для авторизированных пользователей
 # create_token: функция генерации токена
+import json
 
 
 users_bp = Blueprint("/api/users", __name__) # <= префикс для конечной точки
@@ -56,3 +57,37 @@ def usersRegister():
 
     return jsonify({"token": create_token(username)}), 200 # возвращаем токен пользователю
 
+
+@users_bp.route("/addcoctail", methods=['POST'])
+@token_required
+def createCoctail(user):
+    name = request.form.get('name')
+    if not name:
+        return jsonify({"error": "Name is required"}), 400
+    
+    glass = request.form.get('glass')
+    if not glass:
+        return jsonify({"error": "Glass type is required"}), 400
+    
+    description = request.form.get('description')
+    if not description:
+        return jsonify({"error": "Description is required"}), 400
+    
+    contentReceived = request.form.get('content')
+    if not contentReceived:
+        return jsonify({"error": "Content is required"}), 400
+    
+    content = json.loads(contentReceived)['ingridients']
+    if not content:
+        return jsonify({"error": "Content parse error"}), 400
+    
+    
+    for ingridient in content:
+        try:
+            ingr = Ingridient.query.filter_by(name=ingridient).first()
+            if not ingr:
+                return jsonify({"error": f"Ingridient {ingridient} not found"}), 404
+
+        except Exception as e:
+            # удалить позже
+            return jsonify({"error": f"Error parsing ingridients: {e}"}), 500
