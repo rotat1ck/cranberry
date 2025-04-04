@@ -18,3 +18,6 @@ def getCoctailPrice(content):
             return jsonify({"error": f"Error parsing ingridients: {e}"}), 500
         
     return price
+
+def getCoctailDegree(content):
+    pass
