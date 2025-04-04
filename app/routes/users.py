@@ -81,13 +81,16 @@ def createCoctail(user):
     if not content:
         return jsonify({"error": "Content parse error"}), 400
     
-    
+    contentResult = ""
     for ingridient in content:
         try:
             ingr = Ingridient.query.filter_by(name=ingridient).first()
             if not ingr:
                 return jsonify({"error": f"Ingridient {ingridient} not found"}), 404
-
+            contentResult += ingr.name + " "
         except Exception as e:
             # удалить позже
             return jsonify({"error": f"Error parsing ingridients: {e}"}), 500
+        
+    print(contentResult)
+    return jsonify({"message": f"Coctail {name} created"}), 200
