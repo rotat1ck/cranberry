@@ -1,10 +1,17 @@
 from flask import Blueprint, jsonify, request
 from app.utils.jwtdec import token_required
-from app.models import db, User, Ingridient, CustomCoctail
+from app.models import db, User, Ingridient, CustomCoctail, Coctail
 from app.utils.coctails import getCoctailPrice, getCoctailContent, getCoctailDegree
 import json
 
 coctails_bp = Blueprint("/api/coctails", __name__)
+
+@coctails_bp.route('/getmenu', methods=['GET'])
+def getMenu():
+    coctails = Coctail.query.all()
+    return jsonify([{"id": coctail.id, "name": coctail.name, "glass": coctail.glass,
+                    "description": coctail.description, "price": coctail.price,
+                    "content": coctail.content, "degrees": coctail.degrees} for coctail in coctails])
 
 @coctails_bp.route('/getcoctails', methods=['GET'])
 @token_required
@@ -13,6 +20,11 @@ def getCoctails(user):
     return jsonify([{"id": coctail.id, "name": coctail.name, "glass": coctail.glass,
                     "description": coctail.description, "price": coctail.price,
                     "content": coctail.content, "degrees": coctail.degrees} for coctail in userCoctails])
+
+@coctails_bp.route('/getingridients')
+def getIngridients():
+    ingridients = Ingridient.query.all()
+    return jsonify([{"id": ingridient.id, "name": ingridient.name, "price": ingridient.price, "degrees": ingridient.degrees} for ingridient in ingridients])
 
 @coctails_bp.route("/addcoctail", methods=['POST'])
 @token_required
@@ -54,9 +66,17 @@ def createCoctail(user):
     db.session.add(coctail)
     db.session.commit()
     
-    return jsonify({"message": f"Coctail {name} created"}), 200
+    return jsonify({"id": coctail.id, "name": coctail.name, "glass": coctail.glass,
+                    "description": coctail.description, "price": coctail.price,
+                    "content": coctail.content, "degrees": coctail.degrees}), 200
 
 @coctails_bp.route('/deletecoctail/<int:coctailId>', methods=['DELETE'])    
 @token_required
 def deleteCoctail(user, coctailId):
+    userCoctails = CustomCoctail.query.filter_by(id=coctailId).first()
+    if not userCoctails:
+        return jsonify({"error": "Coctail not found"}), 404
     
+    db.session.delete(userCoctails)
+    db.session.commit()
+    return jsonify({"message": f"Coctail {userCoctails.name} deleted"}),
