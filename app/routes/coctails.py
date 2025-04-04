@@ -11,7 +11,7 @@ def getMenu():
     coctails = Coctail.query.all()
     return jsonify([{"id": coctail.id, "name": coctail.name, "glass": coctail.glass,
                     "description": coctail.description, "price": coctail.price,
-                    "content": coctail.content, "degrees": coctail.degrees} for coctail in coctails])
+                    "content": coctail.content, "degrees": round(coctail.degrees, 2)} for coctail in coctails])
 
 @coctails_bp.route('/getcoctails', methods=['GET'])
 @token_required
@@ -19,9 +19,9 @@ def getCoctails(user):
     userCoctails = CustomCoctail.query.filter_by(owner=user.id)
     return jsonify([{"id": coctail.id, "name": coctail.name, "glass": coctail.glass,
                     "description": coctail.description, "price": coctail.price,
-                    "content": coctail.content, "degrees": coctail.degrees} for coctail in userCoctails])
+                    "content": coctail.content, "degrees": round(coctail.degrees, 2)} for coctail in userCoctails])
 
-@coctails_bp.route('/getingridients')
+@coctails_bp.route('/getingridients', methods=['GET'])
 def getIngridients():
     ingridients = Ingridient.query.all()
     return jsonify([{"id": ingridient.id, "name": ingridient.name, "price": ingridient.price, "degrees": ingridient.degrees} for ingridient in ingridients])
@@ -29,23 +29,23 @@ def getIngridients():
 @coctails_bp.route("/addcoctail", methods=['POST'])
 @token_required
 def createCoctail(user):
-    name = request.form.get('name')
+    name = request.json.get('name')
     if not name:
         return jsonify({"error": "Name is required"}), 400
     
-    glass = request.form.get('glass')
+    glass = request.json.get('glass')
     if not glass:
         return jsonify({"error": "Glass type is required"}), 400
     
-    description = request.form.get('description')
+    description = request.json.get('description')
     if not description:
         return jsonify({"error": "Description is required"}), 400
     
-    contentReceived = request.form.get('content')
+    contentReceived = request.json.get('content')
     if not contentReceived:
         return jsonify({"error": "Content is required"}), 400
     
-    content = json.loads(contentReceived)['ingridients']
+    content = contentReceived['ingridients']
     if not content:
         return jsonify({"error": "Content parse error"}), 400
     
