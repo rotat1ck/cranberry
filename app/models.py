@@ -24,3 +24,14 @@ class Coctail(db.Model):
     price = db.Column(db.Float, nullable=False) # цена кок
     content = db.Column(db.String(300), nullable=False)
     degrees = db.Column(db.Integer, nullable=False)
+
+class CustomCoctail(db.Model):
+    __tablename__ = 'custom_coctails' # название таблицы
+    id = db.Column(db.Integer, primary_key=True) # id коктейля
+    owner = db.Column(db.Integer, db.ForeignKey('users.id')) # id пользователя, который создал коктейль
+    name = db.Column(db.String(80), nullable=False) # название кок
+    glass = db.Column(db.String(80), nullable=False)
+    description = db.Column(db.String(120), nullable=False) # описание кок
+    price = db.Column(db.Float, nullable=False) # цена кок
+    content = db.Column(db.String(300), nullable=False)
+    degrees = db.Column(db.Integer, nullable=False)

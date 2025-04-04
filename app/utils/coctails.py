@@ -19,7 +19,27 @@ def getCoctailPrice(content):
     return price
 
 def getCoctailDegree(content):
-    pass
+    totalVolume = 0
+    totalAlcoholVolume = 0
+    
+    for ingridient in content:
+        try:
+            ingr = Ingridient.query.filter_by(name=ingridient['name']).first()
+            if not ingr:
+                return jsonify({"error": f"Ingridient {ingridient['name']} not found"}), 404
+            if not ingridient['volume']:
+                return jsonify({"error": f"Ingridient {ingridient['name']} volume is required"}), 400
+            
+            volume = float(ingridient['volume'])
+            totalVolume += volume
+            
+            alcoholVolume = volume * (ingr.degrees)
+            totalAlcoholVolume += alcoholVolume
+
+        except Exception as e:
+            return jsonify({"error": f"Error parsing ingridients: {e}"}), 500
+    
+    return totalAlcoholVolume / totalVolume
 
 def getCoctailContent(content):
     contentResult = ""
@@ -31,7 +51,7 @@ def getCoctailContent(content):
             if not ingridient['volume']:
                 return jsonify({"error": f"Ingridient {ingridient['name']} volume is required"}),
         
-            contentResult += ingr.name + " " + ingridient['volume'] + " "
+            contentResult += ingr.name + " " + ingridient['volume'] + "мл, "
         except Exception as e:
             # удалить позже
             return jsonify({"error": f"Error parsing ingridients: {e}"}), 500
