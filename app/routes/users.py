@@ -2,11 +2,11 @@ from flask import Blueprint, jsonify, request
 # Blueprint: создание префикса для конечной точки
 # jsonify: преобразование данных в JSON
 # request: доступ к данным запроса
-from app.models import db, User, Ingridient
+from app.models import db, User
 # db: объект базы данных
 # User: модель пользователя
 from app.utils.jwtdec import token_required, create_token
-from app.utils.coctails import getCoctailPrice, getCoctailContent, getCoctailDegree
+
 # token_required: декоратор ограничивающий конечную точку только для авторизированных пользователей
 # create_token: функция генерации токена
 import json
@@ -57,39 +57,3 @@ def usersRegister():
     db.session.commit() # сохраняем изменения в базе данных
 
     return jsonify({"token": create_token(username)}), 200 # возвращаем токен пользователю
-
-
-@users_bp.route("/addcoctail", methods=['POST'])
-@token_required
-def createCoctail(user):
-    name = request.form.get('name')
-    if not name:
-        return jsonify({"error": "Name is required"}), 400
-    
-    glass = request.form.get('glass')
-    if not glass:
-        return jsonify({"error": "Glass type is required"}), 400
-    
-    description = request.form.get('description')
-    if not description:
-        return jsonify({"error": "Description is required"}), 400
-    
-    contentReceived = request.form.get('content')
-    if not contentReceived:
-        return jsonify({"error": "Content is required"}), 400
-    
-    content = json.loads(contentReceived)['ingridients']
-    if not content:
-        return jsonify({"error": "Content parse error"}), 400
-    
-    contentResult = getCoctailContent(content)
-    if isinstance(contentResult, tuple) and contentResult[0].is_json:
-        return contentResult
-
-    priceResult = getCoctailPrice(content)
-    if isinstance(priceResult, tuple) and priceResult[0].is_json:
-        return priceResult
-    
-    print(contentResult)
-    print(priceResult)
-    return jsonify({"message": f"Coctail {name} created"}), 200
